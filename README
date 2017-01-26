@@ -1,0 +1,27 @@
+# merge2exe1
+Merge to binary executable files into one executable
+
+The idea. 
+You have two executable files and you want merge them into one binary.
+
+
+Plan.
+1. Dump exe files into hex, for ex. evil.exe
+ 
+echo "const unsigned char evil[] = {" > evil.h
+cat evil.exe | hexdump -v -e '"0x" 1/1 "%02X" ","' | sed s/,$// >> evil.h
+echo "};" >> evil.h
+
+2. Include evil.h into main.c , after execution dump to disc, execute.
+
+#include "evil.h"
+
+// save to disk
+file = fopen(bin_name_evil, "w");
+fwrite(evil, 1, sizeof(evil), file);
+fclose(file);
+chmod(bin_name_evil,0755);	  
+
+// execute
+execl(bin_name_evil, bin_name_evil, (char *) 0);
+
